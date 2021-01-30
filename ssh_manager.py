@@ -15,7 +15,11 @@ class SshManager:
         # Get the remote user ip.
         remote_ip  = input("[+] Enter the remote ip: ")
         # Get the port number to connect.
-        self.port_number = input("[+] Enter the port number: ")
+        self.port_number = input("[+] Enter the port number or type enter to use the default port 22: ")
+
+        if self.port_number == "":
+            self.port_number = "22"
+
         # Concatenate the remote_username and remote_ip to form: remote_username@remote_ip pattern.
         self.ssh_remote_connection = remote_username + "@" + remote_ip
 
@@ -33,7 +37,7 @@ class SshManager:
             # Return the user option.
             return option
         except ValueError:
-            print("\n[!] Invalid option!")
+            print("\n[!] Invalid option!\n")
 
 
 
@@ -43,7 +47,9 @@ class SshManager:
         result = subprocess.run(["ssh", "-p", self.port_number, self.ssh_remote_connection], stderr=subprocess.PIPE)
         # Verify if connection was refused.
         if "Connection refused" in str(result.stderr):
-            print("\n[!] Remote connection refused.\nPlease, ensure that the ssh service is running in the remote computer!")
+            print("\n[!] Remote connection refused.\nPlease, ensure that the ssh service is running in the remote computer!\nAnd verify if the " + str(self.port_number) + " is the right port.\n")
+        elif "Bad port" in str(result.stderr):
+            print("\n[!] Please enter a valid positive integer for the port number.")
 
     def send_file_via_ssh(self):
         filename = input("\n[+] Enter the filename: ")
@@ -55,6 +61,7 @@ class SshManager:
                 print("\n[!] Remote connection refused.\nPlease, ensure that the ssh service is running in the remote computer!")
         else:
             print("\n[!] Please enter a valid file!")
+
     def start_ssh_server(self):
         print("\n[+] Starting SSH server....")
         subprocess.run(["systemctl", "start", "sshd"])
@@ -71,8 +78,8 @@ class SshManager:
         ascii_title = pyfiglet.figlet_format("SSH MANAGER", font="slant")
         # Shows the title.
         print("\n")
-        print("-" * 65)
+        print("-" * 68)
         print("")
         print(ascii_title)
-        print("-" * 65)
+        print("-" * 68)
         print("\n")
